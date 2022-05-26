@@ -17,7 +17,7 @@ const AddUser: React.FC = () => {
   const [email, setEmail] = useState<String>("");
   const [insert_users, { loading, error }] = useMutation(ADD_USER, {
     variables: { object: { email: email, username: username } },
-    refetchQueries: [GET_USERS, "users"],
+    refetchQueries: [GET_USERS],
   });
 
   if (loading) return <div>Loading...</div>;

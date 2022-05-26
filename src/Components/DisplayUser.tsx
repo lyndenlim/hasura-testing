@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, useMutation } from "@apollo/client";
 
 export const GET_USERS = gql`
   {
@@ -10,24 +10,44 @@ export const GET_USERS = gql`
   }
 `;
 
+const DELETE_USER = gql`
+  mutation DeleteUser($id: Int!) {
+    delete_users_by_pk(id: $id) {
+      id
+    }
+  }
+`;
+
 interface User {
   id: number;
   email: string;
   username: string;
 }
 const DisplayUser: React.FC = () => {
-  const { loading, error, data } = useQuery(GET_USERS);
+  const {
+    loading: usersQueryLoading,
+    error: usersQueryError,
+    data: users,
+  } = useQuery(GET_USERS);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error.message}</div>;
+  const [deleteUser, { loading, error, data }] = useMutation(DELETE_USER, {
+    refetchQueries: [GET_USERS],
+  });
+
+  if (usersQueryLoading) return <div>Loading...</div>;
+  if (usersQueryError) return <div>{usersQueryError.message}</div>;
 
   return (
     <div>
-      {data.users.map((user: User) => (
+      {users.users.map((user: User) => (
         <div key={user.id}>
           {user.username}
           <br />
           {user.email}
+          <br />
+          <button onClick={() => deleteUser({ variables: { id: user.id } })}>
+            Delete
+          </button>
           <hr />
         </div>
       ))}
